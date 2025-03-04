@@ -11,8 +11,9 @@ import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 import PageTransition from "./components/PageTransition";
 
-// Lazy load the Player component
+// Lazy load components
 const Player = lazy(() => import("./pages/Player"));
+const MultiPlayer = lazy(() => import("./pages/MultiPlayer"));
 
 // Create loading component
 const PageLoader = () => (
@@ -35,6 +36,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/player/:streamId" element={<Player />} />
+              <Route path="/multi-player" element={<MultiPlayer />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

@@ -240,9 +240,16 @@ const Index: React.FC = () => {
             <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
               Join our platform to broadcast your content to viewers worldwide with high-quality, low-latency HLS streaming.
             </p>
-            <Button size="lg" className="shadow-lg transition-transform duration-300 hover:scale-105">
-              Get Started
-            </Button>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Button size="lg" className="shadow-lg transition-transform duration-300 hover:scale-105">
+                Get Started
+              </Button>
+              <Button asChild variant="outline" size="lg" className="shadow-sm transition-transform duration-300 hover:scale-105">
+                <Link to="/multi-player">
+                  View Multiple Players
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
@@ -263,6 +270,9 @@ const Index: React.FC = () => {
               </Link>
               <Link to="/player/featured" className="text-muted-foreground hover:text-foreground transition-colors">
                 Featured
+              </Link>
+              <Link to="/multi-player" className="text-muted-foreground hover:text-foreground transition-colors">
+                Multi-Player
               </Link>
               <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
                 About
