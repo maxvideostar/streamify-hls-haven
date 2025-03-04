@@ -1,12 +1,13 @@
 
 import React from 'react';
 import VideoPlayer from '@/components/VideoPlayer';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft, Search, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Sample streams with different HLS sources
 const STREAMS_BY_CATEGORY = {
@@ -68,6 +69,45 @@ const STREAMS_BY_CATEGORY = {
   ]
 };
 
+// Define featured pages
+const FEATURED_PAGES = [
+  {
+    title: "Sports Channel",
+    description: "Watch live sports events and competitions from around the world",
+    category: "Sports",
+    icon: "🏆",
+    path: "/sports"
+  },
+  {
+    title: "News Network",
+    description: "Stay informed with 24/7 news coverage from global sources",
+    category: "News",
+    icon: "📰",
+    path: "/news"
+  },
+  {
+    title: "Entertainment Tonight",
+    description: "Celebrity interviews, movie premiers, and entertainment news",
+    category: "Entertainment",
+    icon: "🎭",
+    path: "/entertainment"
+  },
+  {
+    title: "Classic Movies",
+    description: "Enjoy a curated selection of classic and modern films",
+    category: "Movies",
+    icon: "🎬",
+    path: "/movies"
+  },
+  {
+    title: "Tech Today",
+    description: "Latest tech news, product reviews, and digital innovation",
+    category: "Technology",
+    icon: "💻",
+    path: "/tech"
+  }
+];
+
 const MultiPlayer: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -112,6 +152,35 @@ const MultiPlayer: React.FC = () => {
         </div>
 
         <Separator className="mb-6" />
+
+        {/* Featured Channels Section */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-6">Featured Channels</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+            {FEATURED_PAGES.map(page => (
+              <Card key={page.path} className="hover:shadow-md transition-shadow bg-card/50 backdrop-blur-sm">
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-start">
+                    <div className="text-3xl mb-2">{page.icon}</div>
+                    <div className="px-2 py-1 text-xs rounded-full bg-primary/10 text-primary">
+                      {page.category}
+                    </div>
+                  </div>
+                  <CardTitle className="text-lg">{page.title}</CardTitle>
+                  <CardDescription className="line-clamp-2">{page.description}</CardDescription>
+                </CardHeader>
+                <CardFooter>
+                  <Button asChild className="w-full gap-1">
+                    <Link to={page.path}>
+                      Watch Now
+                      <ExternalLink size={14} />
+                    </Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </section>
 
         {searchTerm ? (
           <div className="mb-8">

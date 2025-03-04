@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import { CSSTransition, TransitionGroup } from "react-transition-group";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
@@ -14,6 +13,11 @@ import PageTransition from "./components/PageTransition";
 // Lazy load components
 const Player = lazy(() => import("./pages/Player"));
 const MultiPlayer = lazy(() => import("./pages/MultiPlayer"));
+const SportsPage = lazy(() => import("./pages/SportsPage"));
+const NewsPage = lazy(() => import("./pages/NewsPage"));
+const EntertainmentPage = lazy(() => import("./pages/EntertainmentPage"));
+const MoviesPage = lazy(() => import("./pages/MoviesPage"));
+const TechPage = lazy(() => import("./pages/TechPage"));
 
 // Create loading component
 const PageLoader = () => (
@@ -37,6 +41,11 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/player/:streamId" element={<Player />} />
               <Route path="/multi-player" element={<MultiPlayer />} />
+              <Route path="/sports" element={<SportsPage />} />
+              <Route path="/news" element={<NewsPage />} />
+              <Route path="/entertainment" element={<EntertainmentPage />} />
+              <Route path="/movies" element={<MoviesPage />} />
+              <Route path="/tech" element={<TechPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
