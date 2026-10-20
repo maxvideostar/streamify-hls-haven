@@ -95,8 +95,8 @@ if [ -f "$CERT" ]; then write_https; else write_http; fi
 if [ ! -f "$CERT" ]; then
   command -v certbot >/dev/null || apt-get install -y -qq certbot
   log "Cer certificat SSL pentru $DOMAIN"
-  if certbot certonly --webroot -w "$WEBROOT" -d "$DOMAIN" --non-interactive --agree-tos \
-       ${EMAIL:+-m "$EMAIL"} ${EMAIL:---register-unsafely-without-email}; then
+  if [ -n "$EMAIL" ]; then MAIL=(-m "$EMAIL"); else MAIL=(--register-unsafely-without-email); fi
+  if certbot certonly --webroot -w "$WEBROOT" -d "$DOMAIN" --non-interactive --agree-tos "${MAIL[@]}"; then
     write_https && "$NGINX" -t && "$NGINX" -s reload
     echo "$NGINX -s reload" > /etc/letsencrypt/renewal-hooks/deploy/streamify-nginx.sh
     chmod +x /etc/letsencrypt/renewal-hooks/deploy/streamify-nginx.sh
