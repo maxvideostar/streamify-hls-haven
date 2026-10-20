@@ -98,7 +98,8 @@ if [ ! -f "$CERT" ]; then
   if [ -n "$EMAIL" ]; then MAIL=(-m "$EMAIL"); else MAIL=(--register-unsafely-without-email); fi
   if certbot certonly --webroot -w "$WEBROOT" -d "$DOMAIN" --non-interactive --agree-tos "${MAIL[@]}"; then
     write_https && "$NGINX" -t && "$NGINX" -s reload
-    echo "$NGINX -s reload" > /etc/letsencrypt/renewal-hooks/deploy/streamify-nginx.sh
+    mkdir -p /etc/letsencrypt/renewal-hooks/deploy
+    printf "#!/bin/sh\n%s -s reload\n" "$NGINX" > /etc/letsencrypt/renewal-hooks/deploy/streamify-nginx.sh
     chmod +x /etc/letsencrypt/renewal-hooks/deploy/streamify-nginx.sh
   else
     echo "!! SSL a esuat (DNS-ul pentru $DOMAIN arata spre server?). Site-ul merge pe HTTP."
