@@ -11,15 +11,15 @@ Editează `public/channels.json` (după build, fișierul ajunge în `dist/channe
 {
   "playlist": "",
   "channels": [
-    { "id": "hd365", "name": "HD365", "group": "Live TV",
-      "url": "https://netstreaming.eu/hls/hd365/index.m3u8",
-      "logo": "https://netstreaming.eu/logo/hd365.png",
+    { "id": "astv", "name": "ASTV", "group": "Live TV",
+      "url": "https://netstreaming.eu/astv.m3u8",
+      "logo": "https://netstreaming.eu/logo/astv.png",
       "description": "" }
   ]
 }
 ```
 
-- `id` apare în URL: `/player/hd365`
+- `id` apare în URL: `/player/astv`
 - `group` grupează canalele pe pagina principală și în Multi-view
 - `logo` și `description` sunt opționale
 
