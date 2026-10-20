@@ -1,11 +1,12 @@
 {
   "playlist": "",
   "channels": [
-    { "id": "astv",   "name": "ASTV",    "group": "Live TV", "url": "https://netstreaming.eu/astv.m3u8",   "logo": "", "description": "" },
-    { "id": "infohd", "name": "InfoHD",  "group": "Live TV", "url": "https://netstreaming.eu/infohd.m3u8", "logo": "", "description": "" },
-    { "id": "tv1",    "name": "TV1",     "group": "Live TV", "url": "https://netstreaming.eu/tv1.m3u8",    "logo": "", "description": "" },
-    { "id": "hd1",    "name": "HD1",     "group": "Live TV", "url": "https://netstreaming.eu/hd1.m3u8",    "logo": "", "description": "" },
-    { "id": "m9tv",   "name": "M9TV",    "group": "Live TV", "url": "https://netstreaming.eu/m9tv.m3u8",   "logo": "", "description": "" },
-    { "id": "m9plus", "name": "M9 Plus", "group": "Live TV", "url": "https://netstreaming.eu/m9plus.m3u8", "logo": "", "description": "" }
+    {"id": "hd365", "name": "HD365", "group": "Live TV", "url": "https://netstreaming.eu/hd365.m3u8", "logo": "", "description": ""},
+    {"id": "astv", "name": "ASTV", "group": "Live TV", "url": "https://netstreaming.eu/astv.m3u8", "logo": "", "description": ""},
+    {"id": "infohd", "name": "InfoHD", "group": "Live TV", "url": "https://netstreaming.eu/infohd.m3u8", "logo": "", "description": ""},
+    {"id": "tv1", "name": "TV1", "group": "Live TV", "url": "https://netstreaming.eu/tv1.m3u8", "logo": "", "description": ""},
+    {"id": "hd1", "name": "Hunedoara TV", "group": "Live TV", "url": "https://netstreaming.eu/hd1.m3u8", "logo": "", "description": ""},
+    {"id": "m9tv", "name": "M9TV", "group": "Live TV", "url": "https://netstreaming.eu/m9tv.m3u8", "logo": "", "description": ""},
+    {"id": "m9plus", "name": "M9 Plus", "group": "Live TV", "url": "https://netstreaming.eu/m9plus.m3u8", "logo": "", "description": ""}
   ]
 }
