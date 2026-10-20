@@ -10,19 +10,22 @@ interface VideoPlayerProps {
   poster?: string;
   title?: string;
   autoPlay?: boolean;
+  muted?: boolean;
 }
 
 const VideoPlayer: React.FC<VideoPlayerProps> = ({ 
   src,
   poster,
   title,
-  autoPlay = false
+  autoPlay = false,
+  muted = false,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(autoPlay);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(muted);
+  const [isOffline, setIsOffline] = useState(false);
   const [volume, setVolume] = useState(1);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -33,52 +36,85 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
 
-  // Setup HLS
+  // Setup HLS with automatic recovery (live TV: never give up, keep retrying)
   useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
     let hls: Hls | null = null;
-    
-    if (videoRef.current) {
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    let disposed = false;
+    let mediaRecoveries = 0;
+
+    const tryPlay = () => {
+      if (!autoPlay) return;
+      video.play().catch(() => {
+        // Browsers block autoplay with sound: retry muted.
+        video.muted = true;
+        setIsMuted(true);
+        video.play().catch(() => setIsPlaying(false));
+      });
+    };
+
+    const scheduleRestart = () => {
+      if (disposed || retryTimer) return;
+      setIsOffline(true);
+      retryTimer = setTimeout(() => {
+        retryTimer = null;
+        start();
+      }, 5000);
+    };
+
+    const start = () => {
+      if (disposed) return;
+      hls?.destroy();
+      hls = null;
+
       if (Hls.isSupported()) {
         hls = new Hls({
-          startLevel: 3, // Auto quality level
+          startLevel: -1,
           enableWorker: true,
           lowLatencyMode: true,
+          liveSyncDurationCount: 3,
+          manifestLoadingMaxRetry: 4,
+          levelLoadingMaxRetry: 4,
+          fragLoadingMaxRetry: 6,
         });
-        
         hls.loadSource(src);
-        hls.attachMedia(videoRef.current);
-        
+        hls.attachMedia(video);
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          if (autoPlay && videoRef.current) {
-            videoRef.current.play().catch(err => {
-              console.error('Autoplay prevented:', err);
-              setIsPlaying(false);
-            });
-          }
+          setIsOffline(false);
+          mediaRecoveries = 0;
+          tryPlay();
         });
-        
+        hls.on(Hls.Events.FRAG_LOADED, () => setIsOffline(false));
         hls.on(Hls.Events.ERROR, (_, data) => {
-          if (data.fatal) {
-            console.error('HLS error:', data);
-            hls?.destroy();
+          if (!data.fatal) return;
+          console.warn('HLS fatal error:', data.type, data.details);
+          if (data.type === Hls.ErrorTypes.MEDIA_ERROR && mediaRecoveries < 3) {
+            mediaRecoveries++;
+            hls?.recoverMediaError();
+          } else {
+            scheduleRestart();
           }
         });
-      } else if (videoRef.current.canPlayType('application/vnd.apple.mpegurl')) {
-        // Native HLS support (Safari)
-        videoRef.current.src = src;
-        if (autoPlay) {
-          videoRef.current.play().catch(err => {
-            console.error('Autoplay prevented:', err);
-            setIsPlaying(false);
-          });
-        }
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        // Native HLS (Safari / iOS)
+        video.src = src;
+        video.onerror = scheduleRestart;
+        video.onloadedmetadata = () => setIsOffline(false);
+        tryPlay();
       }
-    }
-    
+    };
+
+    start();
+
     return () => {
-      if (hls) {
-        hls.destroy();
-      }
+      disposed = true;
+      if (retryTimer) clearTimeout(retryTimer);
+      video.onerror = null;
+      video.onloadedmetadata = null;
+      hls?.destroy();
     };
   }, [src, autoPlay]);
 
@@ -189,6 +225,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }
   };
 
+  const isLive = !Number.isFinite(duration) || duration === 0;
+
   // Format time (seconds to MM:SS)
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -222,6 +260,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           </div>
         )}
         
+        {/* Offline / reconnecting */}
+        {isOffline && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/80 text-white text-sm">
+            <div className="w-10 h-10 border-4 border-white/60 border-t-transparent rounded-full animate-spin" />
+            Semnal indisponibil — reconectare…
+          </div>
+        )}
+
         {/* Back button (only in fullscreen) */}
         {isFullscreen && (
           <button
@@ -245,8 +291,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
             isControlsVisible || !isPlaying ? "opacity-100" : "opacity-0"
           )}
         >
-          {/* Progress bar */}
-          <div 
+          {/* Progress bar (VOD only) */}
+          {!isLive && <div 
             ref={progressRef}
             className="video-progress mb-3"
             onClick={handleProgressClick}
@@ -255,7 +301,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
               className="video-progress-fill"
               style={{ width: `${progress}%` }}
             />
-          </div>
+          </div>}
           
           <div className="flex items-center justify-between text-white">
             <div className="flex items-center space-x-3">
@@ -290,10 +336,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 />
               </div>
               
-              {/* Time display */}
-              <div className="text-xs md:text-sm font-medium">
-                {formatTime(currentTime)} / {formatTime(duration || 0)}
-              </div>
+              {/* Live badge / time display */}
+              {isLive ? (
+                <div className="live-indicator">LIVE</div>
+              ) : (
+                <div className="text-xs md:text-sm font-medium">
+                  {formatTime(currentTime)} / {formatTime(duration || 0)}
+                </div>
+              )}
             </div>
             
             {/* Right controls */}
@@ -310,10 +360,6 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         </div>
       </div>
       
-      {/* Video title (outside the player) */}
-      {title && !isFullscreen && (
-        <h2 className="mt-4 text-xl font-medium">{title}</h2>
-      )}
     </div>
   );
 };

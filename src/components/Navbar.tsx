@@ -35,13 +35,13 @@ const Navbar: React.FC = () => {
           className="flex items-center space-x-2 text-foreground transition-opacity duration-300 hover:opacity-80"
         >
           <PlayCircle className="h-8 w-8 text-primary" />
-          <span className="text-xl font-medium tracking-tight">HLS Haven</span>
+          <span className="text-xl font-medium tracking-tight">NetStreaming</span>
         </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
-          <NavLink to="/" label="Home" />
-          <NavLink to="/player/featured" label="Featured" />
+          <NavLink to="/" label="Canale" />
+          <NavLink to="/multi-player" label="Multi-view" />
         </nav>
 
         {/* Mobile Menu Button */}
@@ -58,8 +58,8 @@ const Navbar: React.FC = () => {
       {isMobileMenuOpen && (
         <nav className="md:hidden absolute top-full left-0 right-0 bg-white/95 dark:bg-black/95 backdrop-blur-md border-t border-border animate-fade-in shadow-lg">
           <div className="flex flex-col p-4 space-y-4">
-            <MobileNavLink to="/" label="Home" />
-            <MobileNavLink to="/player/featured" label="Featured" />
+            <MobileNavLink to="/" label="Canale" />
+            <MobileNavLink to="/multi-player" label="Multi-view" />
           </div>
         </nav>
       )}

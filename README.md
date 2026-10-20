@@ -1,69 +1,57 @@
-# Welcome to your Lovable project
+# NetStreaming Live TV (streamify-hls-haven)
 
-## Project info
+Front-end React + hls.js pentru canalele live de pe netstreaming.eu.
+Lista de canale se încarcă **la runtime**, deci poți adăuga sau schimba canale fără rebuild.
 
-**URL**: https://lovable.dev/projects/b7f58489-c563-4a31-b477-bc11f230954f
+## Configurare canale
 
-## How can I edit this code?
+Editează `public/channels.json` (după build, fișierul ajunge în `dist/channels.json`):
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/b7f58489-c563-4a31-b477-bc11f230954f) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```json
+{
+  "playlist": "",
+  "channels": [
+    { "id": "hd365", "name": "HD365", "group": "Live TV",
+      "url": "https://netstreaming.eu/hls/hd365/index.m3u8",
+      "logo": "https://netstreaming.eu/logo/hd365.png",
+      "description": "" }
+  ]
+}
 ```
 
-**Edit a file directly in GitHub**
+- `id` apare în URL: `/player/hd365`
+- `group` grupează canalele pe pagina principală și în Multi-view
+- `logo` și `description` sunt opționale
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+**Variantă M3U:** pune un URL în `"playlist"`. Se citesc `tvg-id`, `tvg-logo` și `group-title`, iar canalele se adaugă după cele din `channels`.
+Poți chiar să faci build cu `VITE_CHANNELS_URL=https://.../lista.m3u` și să sari complet peste JSON.
 
-**Use GitHub Codespaces**
+> Serverul HLS trebuie să trimită `Access-Control-Allow-Origin` dacă site-ul e pe alt domeniu.
+> Dacă folosești `secure_link`, URL-urile din JSON/M3U trebuie să fie deja semnate. Altfel, generează lista dinamic pe server.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Rulare
 
-## What technologies are used for this project?
+```sh
+npm i
+npm run dev      # http://localhost:8080
+npm run build    # output în dist/
+```
 
-This project is built with .
+## Deploy nginx (SPA)
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```nginx
+location / {
+    root /var/www/streamify/dist;
+    try_files $uri /index.html;
+}
+location = /channels.json {
+    root /var/www/streamify/dist;
+    add_header Cache-Control "no-store";
+}
+```
 
-## How can I deploy this project?
+## Funcții
 
-Simply open [Lovable](https://lovable.dev/projects/b7f58489-c563-4a31-b477-bc11f230954f) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+- Pagina principală cu canalele grupate
+- Player individual (`/player/:id`) cu auto-reconectare când semnalul cade
+- Multi-view (`/multi-player`) cu grilă 1–4 coloane, filtru pe grup și căutare, toate pornite pe mut
